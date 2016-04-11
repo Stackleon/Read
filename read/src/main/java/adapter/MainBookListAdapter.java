@@ -14,7 +14,6 @@ import com.android.volley.toolbox.Volley;
 import com.example.administrator.read.R;
 
 import java.util.List;
-import java.util.zip.Inflater;
 
 import bean.Books;
 import util.BitmapCache;
@@ -27,11 +26,14 @@ public class MainBookListAdapter extends BaseAdapter {
     private Context context;
     private List<Books> list;
     private RequestQueue mQueue;
+    private ImageLoader mLoader;
+
 
     public MainBookListAdapter(Context context,List<Books> list){
         this.context = context;
         this.list = list;
         mQueue = Volley.newRequestQueue(context);
+        mLoader = new ImageLoader(mQueue,BitmapCache.getInstance());
     }
 
 
@@ -70,8 +72,7 @@ public class MainBookListAdapter extends BaseAdapter {
        if( vh.iv.getDrawable() != null){
         ImageLoader.ImageListener listener = ImageLoader.getImageListener(vh.iv,
                 0, R.drawable.default_big_icon);
-        ImageLoader imageLoader = new ImageLoader(mQueue, new BitmapCache());
-        imageLoader.get(list.get(position).getCover(), listener);}
+        mLoader.get(list.get(position).getCover(), listener);}
 
         return convertView;
     }

@@ -12,11 +12,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
@@ -38,6 +42,7 @@ import java.util.List;
 import adapter.MainBookListAdapter;
 import bean.Banner;
 import bean.Books;
+import bean.CleanableEditText;
 import util.BitmapCache;
 import util.ParserJson;
 import util.SetListHeight;
@@ -45,7 +50,7 @@ import util.SetListHeight;
 /**
  * Created by Administrator on 2016/4/8.
  */
-public class FragmentMain extends Fragment implements View.OnClickListener{
+public class FragmentMain extends Fragment implements View.OnClickListener {
 
     private View view;
     private ListView lv_recommend, lv_competitive, lv_update;
@@ -57,6 +62,11 @@ public class FragmentMain extends Fragment implements View.OnClickListener{
     private ViewPager viewpager;
     private List<ImageView> list_iv;
     private List<Banner> list_banner;
+
+    private ImageView iv_back, iv_search, search_search, search_back;
+    private TextView title;
+    private CleanableEditText edittext;
+    private LinearLayout ll_search, ll;
 
     Handler handler = new Handler() {
         public void handleMessage(android.os.Message msg) {
@@ -93,6 +103,67 @@ public class FragmentMain extends Fragment implements View.OnClickListener{
         bt_recommend.setOnClickListener(this);
         bt_competitive.setOnClickListener(this);
         bt_update.setOnClickListener(this);
+
+        title = (TextView) view.findViewById(R.id.title);
+        title.setText("首页");
+        iv_back = (ImageView) view.findViewById(R.id.iv_back);
+        iv_search = (ImageView) view.findViewById(R.id.iv_search);
+        iv_back.setVisibility(View.GONE);
+
+        search_back = (ImageView) view.findViewById(R.id.search_back);
+        edittext = (CleanableEditText) view.findViewById(R.id.search_edittext);
+        search_search = (ImageView) view.findViewById(R.id.search_search);
+        ll_search = (LinearLayout) view.findViewById(R.id.search_layout);
+        ll = (LinearLayout) view.findViewById(R.id.layout);
+        iv_search.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.animation_search);
+                ll.setVisibility(View.GONE);
+                ll_search.setVisibility(View.VISIBLE);
+                ll_search.setAnimation(animation);
+                animation.startNow();
+            }
+        });
+
+        search_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ll.setVisibility(View.VISIBLE);
+                Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.animation_search_out);
+                ll_search.setAnimation(animation);
+                animation.startNow();
+                animation.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        ll_search.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+                });
+
+            }
+        });
+        search_search.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setClass(getActivity(), SearchActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("search", edittext.getText().toString());
+                intent.putExtras(bundle);
+                startActivity(intent);
+            }
+        });
+
 //        setViewPagerAdapter();
 
     }
@@ -141,9 +212,9 @@ public class FragmentMain extends Fragment implements View.OnClickListener{
                             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                                 Intent intent = new Intent();
                                 Bundle bundle = new Bundle();
-                                bundle.putInt("ID",list_competitive.get(position).getId());
+                                bundle.putInt("ID", list_competitive.get(position).getId());
                                 intent.putExtras(bundle);
-                                intent.setClass(getContext(),DetailActivity.class);
+                                intent.setClass(getContext(), DetailActivity.class);
                                 getContext().startActivity(intent);
                             }
                         });
@@ -152,9 +223,9 @@ public class FragmentMain extends Fragment implements View.OnClickListener{
                             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                                 Intent intent = new Intent();
                                 Bundle bundle = new Bundle();
-                                bundle.putInt("ID",list_recommend.get(position).getId());
+                                bundle.putInt("ID", list_recommend.get(position).getId());
                                 intent.putExtras(bundle);
-                                intent.setClass(getContext(),DetailActivity.class);
+                                intent.setClass(getContext(), DetailActivity.class);
                                 getContext().startActivity(intent);
                             }
                         });
@@ -163,9 +234,9 @@ public class FragmentMain extends Fragment implements View.OnClickListener{
                             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                                 Intent intent = new Intent();
                                 Bundle bundle = new Bundle();
-                                bundle.putInt("ID",list_update.get(position).getId());
+                                bundle.putInt("ID", list_update.get(position).getId());
                                 intent.putExtras(bundle);
-                                intent.setClass(getContext(),DetailActivity.class);
+                                intent.setClass(getContext(), DetailActivity.class);
                                 getContext().startActivity(intent);
                             }
                         });
@@ -180,7 +251,6 @@ public class FragmentMain extends Fragment implements View.OnClickListener{
         mQueue.add(stringRequest);
 
     }
-
 
 
     public void setViewPagerAdapter() {

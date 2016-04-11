@@ -47,4 +47,15 @@ public class Books {
     public void setChapterCount(int chapterCount) {
         this.chapterCount = chapterCount;
     }
+
+    @Override
+    public String toString() {
+        return "Books{" +
+                "author='" + author + '\'' +
+                ", cover='" + cover + '\'' +
+                ", title='" + title + '\'' +
+                ", id=" + id +
+                ", chapterCount=" + chapterCount +
+                '}';
+    }
 }

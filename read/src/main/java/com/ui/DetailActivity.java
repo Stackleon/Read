@@ -1,10 +1,16 @@
 package com.ui;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,13 +25,14 @@ import com.example.administrator.read.R;
 
 import adapter.CatalogAdapter;
 import bean.BookDetail;
+import bean.CleanableEditText;
 import util.BitmapCache;
 import util.ParserJson;
 import util.SetListHeight;
 
 public class DetailActivity extends Activity {
 
-    private TextView tv_auth, tv_theme, tv_process, tv_price, tv_depict,tv_title;
+    private TextView tv_auth, tv_theme, tv_process, tv_price, tv_depict, tv_title;
     private ImageView iv;
     private ListView catalog;
     private Button bt_favor, bt_buy;
@@ -36,6 +43,11 @@ public class DetailActivity extends Activity {
 
     private BookDetail bd;
 
+    private ImageView iv_back, iv_search, search_search, search_back;
+    private TextView title;
+    private CleanableEditText edittext;
+    private LinearLayout ll_search, ll;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,10 +55,11 @@ public class DetailActivity extends Activity {
         setContentView(R.layout.content_detail);
         mQueue = Volley.newRequestQueue(this);
         id = getIntent().getExtras().getInt("ID");
-        Log.i("12312312313",id + "");
         path = path + id;
         initView();
         downloadJson();
+
+
     }
 
     private void initView() {
@@ -60,6 +73,20 @@ public class DetailActivity extends Activity {
         catalog = (ListView) findViewById(R.id.catlog);
         bt_favor = (Button) findViewById(R.id.favor_btn);
         bt_buy = (Button) findViewById(R.id.buy_btn);
+
+        title = (TextView) findViewById(R.id.title);
+        title.setText("图书详情");
+        iv_back = (ImageView) findViewById(R.id.iv_back);
+        iv_search = (ImageView) findViewById(R.id.iv_search);
+        iv_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DetailActivity.this.finish();
+            }
+        });
+
+        iv_search.setVisibility(View.INVISIBLE);
+
     }
 
     private void downloadJson() {
@@ -87,7 +114,7 @@ public class DetailActivity extends Activity {
 
     }
 
-    private void downloadImg(){
+    private void downloadImg() {
         ImageLoader.ImageListener listener = ImageLoader.getImageListener(iv,
                 R.drawable.default_big_icon, R.drawable.default_big_icon);
         ImageLoader imageLoader = new ImageLoader(mQueue, new BitmapCache());

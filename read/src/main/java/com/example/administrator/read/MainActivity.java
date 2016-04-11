@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ui.FragmentClassify;
 import com.ui.FragmentMain;
 
 public class MainActivity extends FragmentActivity implements View.OnClickListener {
@@ -38,7 +39,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         list = new ArrayList<>();
         list.add(new FragmentMain());
         list.add(new FragmentMain());
-        list.add(new FragmentMain());
+        list.add(new FragmentClassify());
         list.add(new FragmentMain());
         ll_main.setOnClickListener(this);
         ll_bookshelf.setOnClickListener(this);

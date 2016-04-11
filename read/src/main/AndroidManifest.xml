@@ -23,7 +23,8 @@
         <activity
             android:name="com.ui.DetailActivity"
             android:label="@string/title_activity_detail"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name="com.ui.ClassifyActivity"></activity>
     </application>
 
 </manifest>

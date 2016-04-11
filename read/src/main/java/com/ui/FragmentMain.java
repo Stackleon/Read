@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,11 +40,12 @@ import bean.Banner;
 import bean.Books;
 import util.BitmapCache;
 import util.ParserJson;
+import util.SetListHeight;
 
 /**
  * Created by Administrator on 2016/4/8.
  */
-public class FragmentMain extends Fragment implements View.OnClickListener , AdapterView.OnItemClickListener{
+public class FragmentMain extends Fragment implements View.OnClickListener{
 
     private View view;
     private ListView lv_recommend, lv_competitive, lv_update;
@@ -131,9 +133,42 @@ public class FragmentMain extends Fragment implements View.OnClickListener , Ada
                         lv_recommend.setAdapter(new MainBookListAdapter(getContext(), list_recommend));
                         lv_competitive.setAdapter(new MainBookListAdapter(getContext(), list_competitive));
                         lv_update.setAdapter(new MainBookListAdapter(getContext(), list_update));
-                        setListViewHeight(lv_update);
-                        setListViewHeight(lv_competitive);
-                        setListViewHeight(lv_recommend);
+                        SetListHeight.setListViewHeight(lv_update);
+                        SetListHeight.setListViewHeight(lv_competitive);
+                        SetListHeight.setListViewHeight(lv_recommend);
+                        lv_competitive.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                Intent intent = new Intent();
+                                Bundle bundle = new Bundle();
+                                bundle.putInt("ID",list_competitive.get(position).getId());
+                                intent.putExtras(bundle);
+                                intent.setClass(getContext(),DetailActivity.class);
+                                getContext().startActivity(intent);
+                            }
+                        });
+                        lv_recommend.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                Intent intent = new Intent();
+                                Bundle bundle = new Bundle();
+                                bundle.putInt("ID",list_recommend.get(position).getId());
+                                intent.putExtras(bundle);
+                                intent.setClass(getContext(),DetailActivity.class);
+                                getContext().startActivity(intent);
+                            }
+                        });
+                        lv_update.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                Intent intent = new Intent();
+                                Bundle bundle = new Bundle();
+                                bundle.putInt("ID",list_update.get(position).getId());
+                                intent.putExtras(bundle);
+                                intent.setClass(getContext(),DetailActivity.class);
+                                getContext().startActivity(intent);
+                            }
+                        });
 
                     }
                 }, new Response.ErrorListener() {
@@ -146,31 +181,7 @@ public class FragmentMain extends Fragment implements View.OnClickListener , Ada
 
     }
 
-    /**
-     * 重新计算ListView的高度，解决ScrollView和ListView两个View都有滚动的效果，在嵌套使用时起冲突的问题
-     *
-     * @param listView
-     */
-    public void setListViewHeight(ListView listView) {
 
-        // 获取ListView对应的Adapter
-
-        ListAdapter listAdapter = listView.getAdapter();
-
-        if (listAdapter == null) {
-            return;
-        }
-        int totalHeight = 0;
-        for (int i = 0, len = listAdapter.getCount(); i < len; i++) { // listAdapter.getCount()返回数据项的数目
-            View listItem = listAdapter.getView(i, null, listView);
-            listItem.measure(0, 0); // 计算子项View 的宽高
-            totalHeight += listItem.getMeasuredHeight(); // 统计所有子项的总高度
-        }
-
-        ViewGroup.LayoutParams params = listView.getLayoutParams();
-        params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
-        listView.setLayoutParams(params);
-    }
 
     public void setViewPagerAdapter() {
 
@@ -283,25 +294,4 @@ public class FragmentMain extends Fragment implements View.OnClickListener , Ada
 
     }
 
-
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Intent intent = new Intent();
-        Bundle bundle = new Bundle();
-        switch (view.getId()){
-            case R.id.listview_recommend:
-                bundle.putInt("ID",list_recommend.get(position).getId());
-                break;
-            case R.id.listview_competitive:
-                bundle.putInt("ID",list_competitive.get(position).getId());
-                break;
-            case R.id.listview_update:
-                bundle.putInt("ID",list_update.get(position).getId());
-                break;
-            default:
-                break;
-
-        }
-        intent.putExtras(bundle);
-    }
 }

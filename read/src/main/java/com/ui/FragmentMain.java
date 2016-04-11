@@ -8,14 +8,19 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
@@ -37,13 +42,15 @@ import java.util.List;
 import adapter.MainBookListAdapter;
 import bean.Banner;
 import bean.Books;
+import bean.CleanableEditText;
 import util.BitmapCache;
 import util.ParserJson;
+import util.SetListHeight;
 
 /**
  * Created by Administrator on 2016/4/8.
  */
-public class FragmentMain extends Fragment implements View.OnClickListener , AdapterView.OnItemClickListener{
+public class FragmentMain extends Fragment implements View.OnClickListener {
 
     private View view;
     private ListView lv_recommend, lv_competitive, lv_update;
@@ -55,6 +62,11 @@ public class FragmentMain extends Fragment implements View.OnClickListener , Ada
     private ViewPager viewpager;
     private List<ImageView> list_iv;
     private List<Banner> list_banner;
+
+    private ImageView iv_back, iv_search, search_search, search_back;
+    private TextView title;
+    private CleanableEditText edittext;
+    private LinearLayout ll_search, ll;
 
     Handler handler = new Handler() {
         public void handleMessage(android.os.Message msg) {
@@ -91,6 +103,67 @@ public class FragmentMain extends Fragment implements View.OnClickListener , Ada
         bt_recommend.setOnClickListener(this);
         bt_competitive.setOnClickListener(this);
         bt_update.setOnClickListener(this);
+
+        title = (TextView) view.findViewById(R.id.title);
+        title.setText("首页");
+        iv_back = (ImageView) view.findViewById(R.id.iv_back);
+        iv_search = (ImageView) view.findViewById(R.id.iv_search);
+        iv_back.setVisibility(View.GONE);
+
+        search_back = (ImageView) view.findViewById(R.id.search_back);
+        edittext = (CleanableEditText) view.findViewById(R.id.search_edittext);
+        search_search = (ImageView) view.findViewById(R.id.search_search);
+        ll_search = (LinearLayout) view.findViewById(R.id.search_layout);
+        ll = (LinearLayout) view.findViewById(R.id.layout);
+        iv_search.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.animation_search);
+                ll.setVisibility(View.GONE);
+                ll_search.setVisibility(View.VISIBLE);
+                ll_search.setAnimation(animation);
+                animation.startNow();
+            }
+        });
+
+        search_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ll.setVisibility(View.VISIBLE);
+                Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.animation_search_out);
+                ll_search.setAnimation(animation);
+                animation.startNow();
+                animation.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        ll_search.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+                });
+
+            }
+        });
+        search_search.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setClass(getActivity(), SearchActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("search", edittext.getText().toString());
+                intent.putExtras(bundle);
+                startActivity(intent);
+            }
+        });
+
 //        setViewPagerAdapter();
 
     }
@@ -131,9 +204,42 @@ public class FragmentMain extends Fragment implements View.OnClickListener , Ada
                         lv_recommend.setAdapter(new MainBookListAdapter(getContext(), list_recommend));
                         lv_competitive.setAdapter(new MainBookListAdapter(getContext(), list_competitive));
                         lv_update.setAdapter(new MainBookListAdapter(getContext(), list_update));
-                        setListViewHeight(lv_update);
-                        setListViewHeight(lv_competitive);
-                        setListViewHeight(lv_recommend);
+                        SetListHeight.setListViewHeight(lv_update);
+                        SetListHeight.setListViewHeight(lv_competitive);
+                        SetListHeight.setListViewHeight(lv_recommend);
+                        lv_competitive.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                Intent intent = new Intent();
+                                Bundle bundle = new Bundle();
+                                bundle.putInt("ID", list_competitive.get(position).getId());
+                                intent.putExtras(bundle);
+                                intent.setClass(getContext(), DetailActivity.class);
+                                getContext().startActivity(intent);
+                            }
+                        });
+                        lv_recommend.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                Intent intent = new Intent();
+                                Bundle bundle = new Bundle();
+                                bundle.putInt("ID", list_recommend.get(position).getId());
+                                intent.putExtras(bundle);
+                                intent.setClass(getContext(), DetailActivity.class);
+                                getContext().startActivity(intent);
+                            }
+                        });
+                        lv_update.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                Intent intent = new Intent();
+                                Bundle bundle = new Bundle();
+                                bundle.putInt("ID", list_update.get(position).getId());
+                                intent.putExtras(bundle);
+                                intent.setClass(getContext(), DetailActivity.class);
+                                getContext().startActivity(intent);
+                            }
+                        });
 
                     }
                 }, new Response.ErrorListener() {
@@ -146,31 +252,6 @@ public class FragmentMain extends Fragment implements View.OnClickListener , Ada
 
     }
 
-    /**
-     * 重新计算ListView的高度，解决ScrollView和ListView两个View都有滚动的效果，在嵌套使用时起冲突的问题
-     *
-     * @param listView
-     */
-    public void setListViewHeight(ListView listView) {
-
-        // 获取ListView对应的Adapter
-
-        ListAdapter listAdapter = listView.getAdapter();
-
-        if (listAdapter == null) {
-            return;
-        }
-        int totalHeight = 0;
-        for (int i = 0, len = listAdapter.getCount(); i < len; i++) { // listAdapter.getCount()返回数据项的数目
-            View listItem = listAdapter.getView(i, null, listView);
-            listItem.measure(0, 0); // 计算子项View 的宽高
-            totalHeight += listItem.getMeasuredHeight(); // 统计所有子项的总高度
-        }
-
-        ViewGroup.LayoutParams params = listView.getLayoutParams();
-        params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
-        listView.setLayoutParams(params);
-    }
 
     public void setViewPagerAdapter() {
 
@@ -283,25 +364,4 @@ public class FragmentMain extends Fragment implements View.OnClickListener , Ada
 
     }
 
-
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Intent intent = new Intent();
-        Bundle bundle = new Bundle();
-        switch (view.getId()){
-            case R.id.listview_recommend:
-                bundle.putInt("ID",list_recommend.get(position).getId());
-                break;
-            case R.id.listview_competitive:
-                bundle.putInt("ID",list_competitive.get(position).getId());
-                break;
-            case R.id.listview_update:
-                bundle.putInt("ID",list_update.get(position).getId());
-                break;
-            default:
-                break;
-
-        }
-        intent.putExtras(bundle);
-    }
 }

@@ -67,10 +67,11 @@ public class MainBookListAdapter extends BaseAdapter {
         vh.tv_author.setText(list.get(position).getAuthor());
         vh.tv_title.setText(list.get(position).getTitle());
         vh.tv_chapter.setText("更新至" + list.get(position).getChapterCount() + "章");
+       if( vh.iv.getDrawable() != null){
         ImageLoader.ImageListener listener = ImageLoader.getImageListener(vh.iv,
-                R.drawable.default_big_icon, R.drawable.default_big_icon);
+                0, R.drawable.default_big_icon);
         ImageLoader imageLoader = new ImageLoader(mQueue, new BitmapCache());
-        imageLoader.get(list.get(position).getCover(), listener);
+        imageLoader.get(list.get(position).getCover(), listener);}
 
         return convertView;
     }

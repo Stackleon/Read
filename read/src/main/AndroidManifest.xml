@@ -25,7 +25,9 @@
             android:label="@string/title_activity_detail"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name="com.ui.ClassifyActivity" />
-        <activity android:name="com.ui.SearchActivity"></activity>
+        <activity android:name="com.ui.SearchActivity" />
+        <activity android:name="com.ui.LoginActivity" />
+        <activity android:name="com.ui.RegistActivity"></activity>
     </application>
 
 </manifest>

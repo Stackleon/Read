@@ -1,7 +1,9 @@
 package com.ui;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -12,6 +14,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,6 +29,8 @@ import com.example.administrator.read.R;
 import adapter.CatalogAdapter;
 import bean.BookDetail;
 import bean.CleanableEditText;
+import bean.MyEvent;
+import de.greenrobot.event.EventBus;
 import util.BitmapCache;
 import util.ParserJson;
 import util.SetListHeight;
@@ -47,20 +52,26 @@ public class DetailActivity extends Activity {
     private TextView title;
     private CleanableEditText edittext;
     private LinearLayout ll_search, ll;
+    private ScrollView sv;
 
+    private SharedPreferences preferences;
+    private SharedPreferences.Editor editor;
+    private boolean favorFlag = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_detail);
+        preferences=getSharedPreferences("shelf", Context.MODE_PRIVATE);
+        editor=preferences.edit();
         mQueue = Volley.newRequestQueue(this);
         id = getIntent().getExtras().getInt("ID");
         path = path + id;
         initView();
         downloadJson();
 
-
     }
+
 
     private void initView() {
         tv_auth = (TextView) findViewById(R.id.tv_auth);
@@ -73,6 +84,7 @@ public class DetailActivity extends Activity {
         catalog = (ListView) findViewById(R.id.catlog);
         bt_favor = (Button) findViewById(R.id.favor_btn);
         bt_buy = (Button) findViewById(R.id.buy_btn);
+        sv = (ScrollView) findViewById(R.id.scrollView);
 
         title = (TextView) findViewById(R.id.title);
         title.setText("图书详情");
@@ -86,6 +98,32 @@ public class DetailActivity extends Activity {
         });
 
         iv_search.setVisibility(View.INVISIBLE);
+
+        int pre = Integer.parseInt(preferences.getString("" + id , "-1" ));
+        if(pre == id){
+            bt_favor.setText("已收藏");
+            favorFlag = true;
+        }
+
+        bt_favor.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(favorFlag == true){
+                    editor.remove(id + "");
+                    editor.commit();
+                    Toast.makeText(DetailActivity.this,"已取消收藏",Toast.LENGTH_SHORT).show();
+                    bt_favor.setText("加入书架");
+
+                }else{
+                    editor.putString(""+id , id+"");
+                    editor.commit();
+                    Toast.makeText(DetailActivity.this,"已收藏",Toast.LENGTH_SHORT).show();
+                    bt_favor.setText("已收藏");
+                }
+                favorFlag = !favorFlag;
+                EventBus.getDefault().post(new MyEvent());
+            }
+        });
 
     }
 
@@ -103,6 +141,7 @@ public class DetailActivity extends Activity {
                         downloadImg();
                         catalog.setAdapter(new CatalogAdapter(bd.getBooklist(), DetailActivity.this));
                         SetListHeight.setListViewHeight(catalog);
+                        sv.smoothScrollTo(0, 20);
                     }
                 }, new Response.ErrorListener() {
             @Override

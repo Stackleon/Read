@@ -22,6 +22,7 @@ import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -65,11 +66,13 @@ public class FragmentMain extends Fragment implements View.OnClickListener {
     private List<ImageView> list_iv;
     private List<Banner> list_banner;
 
-    private ImageView iv_back, iv_search, search_search, search_back;
-    private TextView title;
-    private CleanableEditText edittext;
-    private LinearLayout ll_search;
-    private RelativeLayout rl_layout;
+//    private ImageView iv_back, iv_search, search_search, search_back;
+//    private TextView title;
+//    private CleanableEditText edittext;
+//    private LinearLayout ll_search;
+//    private RelativeLayout rl_layout;
+
+    private ScrollView sv;
 
     Handler handler = new Handler() {
         public void handleMessage(android.os.Message msg) {
@@ -107,67 +110,68 @@ public class FragmentMain extends Fragment implements View.OnClickListener {
         bt_competitive.setOnClickListener(this);
         bt_update.setOnClickListener(this);
 
-        title = (TextView) view.findViewById(R.id.title);
-        title.setText("首页");
-        iv_back = (ImageView) view.findViewById(R.id.iv_back);
-        iv_search = (ImageView) view.findViewById(R.id.iv_search);
-        iv_back.setVisibility(View.GONE);
+//        title = (TextView) view.findViewById(R.id.title);
+//        title.setText("首页");
+//        iv_back = (ImageView) view.findViewById(R.id.iv_back);
+//        iv_search = (ImageView) view.findViewById(R.id.iv_search);
+//        iv_back.setVisibility(View.GONE);
+        sv = (ScrollView) view.findViewById(R.id.scrollView);
 
-        search_back = (ImageView) view.findViewById(R.id.search_back);
-        edittext = (CleanableEditText) view.findViewById(R.id.search_edittext);
-        search_search = (ImageView) view.findViewById(R.id.search_search);
-        ll_search = (LinearLayout) view.findViewById(R.id.search_layout);
-        rl_layout = (RelativeLayout) view.findViewById(R.id.layout);
-        iv_search.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.animation_search);
-                rl_layout.setVisibility(View.GONE);
-                ll_search.setVisibility(View.VISIBLE);
-                ll_search.setAnimation(animation);
-                animation.startNow();
-            }
-        });
+//        search_back = (ImageView) view.findViewById(R.id.search_back);
+//        edittext = (CleanableEditText) view.findViewById(R.id.search_edittext);
+//        search_search = (ImageView) view.findViewById(R.id.search_search);
+//        ll_search = (LinearLayout) view.findViewById(R.id.search_layout);
+//        rl_layout = (RelativeLayout) view.findViewById(R.id.layout);
+//        iv_search.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.animation_search);
+//                rl_layout.setVisibility(View.GONE);
+//                ll_search.setVisibility(View.VISIBLE);
+//                ll_search.setAnimation(animation);
+//                animation.startNow();
+//            }
+//        });
+//
+//        search_back.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                rl_layout.setVisibility(View.VISIBLE);
+//                Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.animation_search_out);
+//                ll_search.setAnimation(animation);
+//                animation.startNow();
+//                animation.setAnimationListener(new Animation.AnimationListener() {
+//                    @Override
+//                    public void onAnimationStart(Animation animation) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onAnimationEnd(Animation animation) {
+//                        ll_search.setVisibility(View.GONE);
+//                    }
+//
+//                    @Override
+//                    public void onAnimationRepeat(Animation animation) {
+//
+//                    }
+//                });
+//
+//            }
+//        });
+//        search_search.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent intent = new Intent();
+//                intent.setClass(getActivity(), SearchActivity.class);
+//                Bundle bundle = new Bundle();
+//                bundle.putString("search", edittext.getText().toString());
+//                intent.putExtras(bundle);
+//                startActivity(intent);
+//            }
+//        });
 
-        search_back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                rl_layout.setVisibility(View.VISIBLE);
-                Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.animation_search_out);
-                ll_search.setAnimation(animation);
-                animation.startNow();
-                animation.setAnimationListener(new Animation.AnimationListener() {
-                    @Override
-                    public void onAnimationStart(Animation animation) {
-
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animation animation) {
-                        ll_search.setVisibility(View.GONE);
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animation animation) {
-
-                    }
-                });
-
-            }
-        });
-        search_search.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent();
-                intent.setClass(getActivity(), SearchActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putString("search", edittext.getText().toString());
-                intent.putExtras(bundle);
-                startActivity(intent);
-            }
-        });
-
-        setViewPagerAdapter();
+//        setViewPagerAdapter();
 
     }
 
@@ -210,6 +214,7 @@ public class FragmentMain extends Fragment implements View.OnClickListener {
                         SetListHeight.setListViewHeight(lv_update);
                         SetListHeight.setListViewHeight(lv_competitive);
                         SetListHeight.setListViewHeight(lv_recommend);
+                        sv.smoothScrollTo(0, 20);
                         lv_competitive.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                             @Override
                             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

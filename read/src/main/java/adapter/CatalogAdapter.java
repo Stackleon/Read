@@ -50,22 +50,21 @@ public class CatalogAdapter extends BaseAdapter {
         if(convertView == null){
             vh = new CatalogViewHolder();
             convertView = LayoutInflater.from(context).inflate(R.layout.catalogitem,null);
-            vh.tv_count = (TextView) convertView.findViewById(R.id.count);
             vh.tv_title = (TextView) convertView.findViewById(R.id.title);
             convertView.setTag(vh);
         }else{
            vh = (CatalogViewHolder) convertView.getTag();
         }
-        vh.tv_count.setText("第"  + position + "章");
         vh.tv_title.setText(list.get(position).getTitle_cha());
 
         return convertView;
     }
 
 
+
 }
 
 class CatalogViewHolder{
-    TextView tv_count,tv_title;
+    TextView tv_title;
 
 }

@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
@@ -20,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -66,7 +68,8 @@ public class FragmentMain extends Fragment implements View.OnClickListener {
     private ImageView iv_back, iv_search, search_search, search_back;
     private TextView title;
     private CleanableEditText edittext;
-    private LinearLayout ll_search, ll;
+    private LinearLayout ll_search;
+    private RelativeLayout rl_layout;
 
     Handler handler = new Handler() {
         public void handleMessage(android.os.Message msg) {
@@ -114,12 +117,12 @@ public class FragmentMain extends Fragment implements View.OnClickListener {
         edittext = (CleanableEditText) view.findViewById(R.id.search_edittext);
         search_search = (ImageView) view.findViewById(R.id.search_search);
         ll_search = (LinearLayout) view.findViewById(R.id.search_layout);
-        ll = (LinearLayout) view.findViewById(R.id.layout);
+        rl_layout = (RelativeLayout) view.findViewById(R.id.layout);
         iv_search.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.animation_search);
-                ll.setVisibility(View.GONE);
+                rl_layout.setVisibility(View.GONE);
                 ll_search.setVisibility(View.VISIBLE);
                 ll_search.setAnimation(animation);
                 animation.startNow();
@@ -129,7 +132,7 @@ public class FragmentMain extends Fragment implements View.OnClickListener {
         search_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ll.setVisibility(View.VISIBLE);
+                rl_layout.setVisibility(View.VISIBLE);
                 Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.animation_search_out);
                 ll_search.setAnimation(animation);
                 animation.startNow();
@@ -164,7 +167,7 @@ public class FragmentMain extends Fragment implements View.OnClickListener {
             }
         });
 
-//        setViewPagerAdapter();
+        setViewPagerAdapter();
 
     }
 
@@ -271,8 +274,6 @@ public class FragmentMain extends Fragment implements View.OnClickListener {
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        List<ImageView> list_cache = new ArrayList<>();
-                        List<ImageView> list_cache1 = new ArrayList<>();
                         for (int i = 0; i < list_banner.size(); i++) {
                             final int count = i;
                             ImageView iv = new ImageView(getContext());
@@ -290,75 +291,85 @@ public class FragmentMain extends Fragment implements View.OnClickListener {
                                     getContext().startActivity(intent);
                                 }
                             });
-                            list_cache.add(iv);
-                            if (i == list_banner.size() - 1) {
-                                list_iv.add(iv);
-                            } else if (i == 0) {
-                                list_cache1.add(iv);
-                            }
+                            list_iv.add(iv);
                         }
-                        list_iv.addAll(list_cache);
-                        list_iv.addAll(list_cache1);
                         viewpager.setAdapter(new PagerAdapter() {
 
 
-                            @Override
-                            public void destroyItem(ViewGroup container, int position,
-                                                    Object object) {
-                                // TODO Auto-generated method stub
-                                ImageView view = list_iv.get(position);
-                                ((ViewPager) container).removeView(view);
-                            }
+                                                 @Override
+                                                 public void destroyItem(ViewGroup container, int position,
+                                                                         Object object) {
+                                                     // TODO Auto-generated method stub
+                                                     viewpager.removeView(list_iv.get(position % list_iv.size()));
+                                                     if (container.getChildAt(position) != null)
+                                                         container.removeViewAt(position);
+                                                 }
 
-                            @Override
-                            public Object instantiateItem(ViewGroup container, int position) {
-                                // TODO Auto-generated method stub
-                                ((ViewPager) container).addView(list_iv.get(position));
-                                return list_iv.get(position);
-                            }
+                                                 @Override
+                                                 public Object instantiateItem(ViewGroup container, int position) {
+                                                     // TODO Auto-generated method stub
+                                                     //获取需要加载视图的父控件
+                                                     ViewParent parent = list_iv.get(position % list_iv.size()).getParent();
+                                                     //判断父控件是否为空，若为空说明已被ViewPager加载，那么我们要移除改视图，这样就能保证一个视图只有一个父控件，
+                                                     if (parent != null) {
+                                                         viewpager.removeView(list_iv.get(position % list_iv.size()));
+                                                     }
+                                                     container.addView(list_iv.get(position % list_iv.size()));
+                                                     return list_iv.get(position % list_iv.size());
+                                                 }
 
-                            @Override
-                            public boolean isViewFromObject(View arg0, Object arg1) {
-                                // TODO Auto-generated method stub
-                                return arg0 == arg1;
-                            }
+                                                 @Override
+                                                 public boolean isViewFromObject(View arg0, Object arg1) {
+                                                     // TODO Auto-generated method stub
+                                                     return arg0 == arg1;
+                                                 }
 
-                            @Override
-                            public int getCount() {
-                                // TODO Auto-generated method stub
-                                return list_iv.size();
-                            }
+                                                 @Override
+                                                 public int getCount() {
+                                                     // TODO Auto-generated method stub
+                                                     return Integer.MAX_VALUE;
+                                                 }
 
 
-                        });
+                                             }
 
-                        viewpager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-                            @Override
-                            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                        );
+                        viewpager.setOnPageChangeListener(new ViewPager.OnPageChangeListener()
 
-                            }
+                                                          {
+                                                              @Override
+                                                              public void onPageScrolled(int position, float positionOffset,
+                                                                                         int positionOffsetPixels) {
 
-                            @Override
-                            public void onPageSelected(int position) {
-                                if (position == list_iv.size() - 1) {
-                                    viewpager.setCurrentItem(0);
-                                }
-                            }
+                                                              }
 
-                            @Override
-                            public void onPageScrollStateChanged(int state) {
+                                                              @Override
+                                                              public void onPageSelected(int position) {
+                                                                  handler.sendEmptyMessageDelayed(0, 3000);
+                                                              }
 
-                            }
-                        });
+                                                              @Override
+                                                              public void onPageScrollStateChanged(int state) {
+
+                                                              }
+                                                          }
+
+                        );
                     }
 
 
-                }, new Response.ErrorListener() {
+                }
+
+                , new Response.ErrorListener()
+
+        {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
                 Toast.makeText(getContext(), "未知错误", Toast.LENGTH_SHORT).show();
             }
-        });
+        }
+
+        );
         mQueue.add(stringRequest);
 
 

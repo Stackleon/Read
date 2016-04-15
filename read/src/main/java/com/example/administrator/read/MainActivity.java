@@ -24,6 +24,8 @@ import com.ui.FragmentShelf;
 import com.ui.SearchActivity;
 
 import bean.CleanableEditText;
+import bean.ProgressEvent;
+import de.greenrobot.event.EventBus;
 
 public class MainActivity extends FragmentActivity implements View.OnClickListener {
 
@@ -37,17 +39,37 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private LinearLayout ll_search;
     private RelativeLayout rl_layout;
 
+
+    /**
+     * 加载
+     */
+    private LinearLayout main;
+    private RelativeLayout rl_progress;
+    private ImageView iv_progress;
+    private Animation animation;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_main);
+        EventBus.getDefault().register(this);
         initView();
         ll_main.performClick();
 
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
 
     private void initView() {
+
+        main = (LinearLayout) findViewById(R.id.ll_main);
+        rl_progress = (RelativeLayout) findViewById(R.id.rl_progress);
+        iv_progress = (ImageView) findViewById(R.id.iv_progress);
+
 
         title = (TextView) findViewById(R.id.title);
         title.setText("首页");
@@ -159,6 +181,12 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
         });
         vp.setOffscreenPageLimit(4);
+
+        animation = AnimationUtils.loadAnimation(this, R.anim.progress);
+        animation.setRepeatCount(Animation.INFINITE);
+        animation.setRepeatMode(Animation.RESTART);
+        iv_progress.setAnimation(animation);
+        animation.startNow();
     }
 
     @Override
@@ -201,4 +229,13 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         ll_more.setImageResource(R.drawable.tab4_1);
         iv_search.setVisibility(View.VISIBLE);
     }
+
+
+    public void onEventMainThread(ProgressEvent event) {
+        ll_main.setVisibility(View.VISIBLE);
+        rl_progress.setVisibility(View.GONE);
+        iv_progress.clearAnimation();
+    }
+
+
 }

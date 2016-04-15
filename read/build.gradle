@@ -27,4 +27,5 @@ dependencies {
     compile 'com.android.support:support-v4:23.2.1'
     compile files('libs/Volley.jar')
     compile files('libs/eventbus.jar')
+    compile files('libs/universal-image-loader-1.9.3.jar')
 }

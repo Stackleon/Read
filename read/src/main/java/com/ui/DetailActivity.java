@@ -9,11 +9,13 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -58,6 +60,13 @@ public class DetailActivity extends Activity {
     private SharedPreferences.Editor editor;
     private boolean favorFlag = false;
 
+    private RelativeLayout rl_progress;
+    private LinearLayout ll_detail;
+    private ImageView iv_progress;
+    private Animation animation;
+
+    private Button bt;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,12 +77,26 @@ public class DetailActivity extends Activity {
         id = getIntent().getExtras().getInt("ID");
         path = path + id;
         initView();
+        setProgress();
         downloadJson();
 
     }
 
+    public void setProgress(){
+        animation = AnimationUtils.loadAnimation(this,R.anim.progress);
+        animation.setRepeatMode(Animation.RESTART);
+        animation.setRepeatCount(Animation.INFINITE);
+        iv_progress.setAnimation(animation);
+        animation.startNow();
+    }
 
     private void initView() {
+
+        bt = (Button) findViewById(R.id.footer);
+        rl_progress = (RelativeLayout) findViewById(R.id.rl_progress);
+        ll_detail = (LinearLayout) findViewById(R.id.ll_detail);
+        iv_progress = (ImageView) findViewById(R.id.iv_progress);
+
         tv_auth = (TextView) findViewById(R.id.tv_auth);
         tv_theme = (TextView) findViewById(R.id.tv_theme);
         tv_process = (TextView) findViewById(R.id.tv_process);
@@ -125,6 +148,17 @@ public class DetailActivity extends Activity {
             }
         });
 
+        bt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(DetailActivity.this,MoreActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putInt("ID",id);
+                intent.putExtras(bundle);
+                startActivity(intent);
+            }
+        });
+
     }
 
     private void downloadJson() {
@@ -142,6 +176,19 @@ public class DetailActivity extends Activity {
                         catalog.setAdapter(new CatalogAdapter(bd.getBooklist(), DetailActivity.this));
                         SetListHeight.setListViewHeight(catalog);
                         sv.smoothScrollTo(0, 20);
+                        rl_progress.setVisibility(View.GONE);
+                        iv_progress.clearAnimation();
+                        catalog.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                Intent intent = new Intent(DetailActivity.this,ReadActivity.class);
+                                Bundle bundle = new Bundle();
+                                bundle.putInt("ID",bd.getBooklist().get(position).getId_cha());
+                                bundle.putString("title",bd.getBooklist().get(position).getTitle_cha());
+                                intent.putExtras(bundle);
+                                startActivity(intent);
+                            }
+                        });
                     }
                 }, new Response.ErrorListener() {
             @Override

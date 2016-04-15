@@ -28,7 +28,7 @@ public class MainBookListAdapter extends BaseAdapter {
     private List<Books> list;
     private RequestQueue mQueue;
 
-    public MainBookListAdapter(Context context,List<Books> list){
+    public MainBookListAdapter(Context context, List<Books> list) {
         this.context = context;
         this.list = list;
         mQueue = Volley.newRequestQueue(context);
@@ -53,31 +53,31 @@ public class MainBookListAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder vh;
-        if(convertView == null){
+        if (convertView == null) {
             vh = new ViewHolder();
-            convertView = LayoutInflater.from(context).inflate(R.layout.mainlistviewitem,null);
+            convertView = LayoutInflater.from(context).inflate(R.layout.mainlistviewitem, null);
             vh.iv = (ImageView) convertView.findViewById(R.id.imageview);
             vh.tv_author = (TextView) convertView.findViewById(R.id.item_author);
             vh.tv_title = (TextView) convertView.findViewById(R.id.title);
             vh.tv_chapter = (TextView) convertView.findViewById(R.id.item_chapter);
             convertView.setTag(vh);
-        }else{
+        } else {
             vh = (ViewHolder) convertView.getTag();
         }
         vh.tv_author.setText(list.get(position).getAuthor());
         vh.tv_title.setText(list.get(position).getTitle());
         vh.tv_chapter.setText("更新至" + list.get(position).getChapterCount() + "章");
-       if( vh.iv.getDrawable() != null){
         ImageLoader.ImageListener listener = ImageLoader.getImageListener(vh.iv,
                 0, R.drawable.default_big_icon);
         ImageLoader imageLoader = new ImageLoader(mQueue, new BitmapCache());
-        imageLoader.get(list.get(position).getCover(), listener);}
+        imageLoader.get(list.get(position).getCover(), listener);
 
         return convertView;
     }
 
 }
-class ViewHolder{
+
+class ViewHolder {
     ImageView iv;
-    TextView tv_title,tv_author,tv_chapter;
+    TextView tv_title, tv_author, tv_chapter;
 }
